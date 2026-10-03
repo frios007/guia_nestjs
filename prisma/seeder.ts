@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
+import bcrypt from 'bcryptjs';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -14,6 +15,8 @@ async function main() {
   await prisma.post.deleteMany();
   await prisma.user.deleteMany();
   await prisma.tenant.deleteMany();
+
+  const password = await bcrypt.hash('contra123.', 12);
 
   const tenant = await prisma.tenant.create({
     data: {
@@ -28,9 +31,9 @@ async function main() {
       username: 'fabio1',
       name: 'Fabio Rios',
       tenantId: tenant.id,
+      password,
     },
   });
-
   await prisma.post.create({
     data: {
       title: 'Mi primer post',
